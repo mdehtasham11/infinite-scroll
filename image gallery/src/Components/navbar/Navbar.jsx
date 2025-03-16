@@ -18,7 +18,10 @@ function Navbar() {
           <NavLink to="/gallery">Galley</NavLink>
         </li>
         <li>
-          <NavLink>About</NavLink>
+          <NavLink to="/image">Generate Images</NavLink>
+        </li>
+        <li>
+          <NavLink to="/about">About</NavLink>
         </li>
       </ul>
     </nav>

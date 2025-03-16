@@ -12,6 +12,8 @@
   "dependencies": {
     "@reduxjs/toolkit": "^2.6.1",
     "axios": "^1.7.9",
+    "dotenv": "^16.4.7",
+    "openai": "^4.87.3",
     "react": "^19.0.0",
     "react-bootstrap": "^2.10.9",
     "react-dom": "^19.0.0",

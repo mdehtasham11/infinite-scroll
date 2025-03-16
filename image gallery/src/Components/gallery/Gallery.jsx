@@ -1,17 +1,21 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { useSelector } from "react-redux";
+
 
 function Gallery() {
-  const [searchData, setSearchData] = useState("");
+  const searchData = useSelector((state) => state.search.searchData);
   const [images, setImages] = useState([]);
   const [page, setPage] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const ACCESS_KEY = "pPAAKdRDW1Bdnbb8JSuudEmMxxi5KGu2EucdXqEDNW8";
 
   const handleScroll = () => {
+
     let timeout;
     setIsLoading(true);
     clearTimeout(timeout);
+
     timeout = setTimeout(() => {
       const innerHeight = window.innerHeight;
       const scrollY = window.scrollY;
