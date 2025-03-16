@@ -1,19 +1,25 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 
-function Gallery({ searchData }) {
+function Gallery() {
+  const [searchData, setSearchData] = useState("");
   const [images, setImages] = useState([]);
   const [page, setPage] = useState(1);
+  const [isLoading, setIsLoading] = useState(false);
   const ACCESS_KEY = "pPAAKdRDW1Bdnbb8JSuudEmMxxi5KGu2EucdXqEDNW8";
 
   const handleScroll = () => {
-    const innerHeight = window.innerHeight;
-    const scrollY = window.scrollY;
-    const bodyHeight = document.body.scrollHeight;
-
-    if (innerHeight + scrollY >= bodyHeight - 100) {
-      setPage((prevPage) => prevPage + 1);
-    }
+    let timeout;
+    setIsLoading(true);
+    clearTimeout(timeout);
+    timeout = setTimeout(() => {
+      const innerHeight = window.innerHeight;
+      const scrollY = window.scrollY;
+      const bodyHeight = document.body.scrollHeight;
+      if (innerHeight + scrollY >= bodyHeight) {
+        setPage((prevPage) => prevPage + 1);
+      }
+    }, 4000);
   };
 
   const fetchImages = async (page) => {
@@ -37,21 +43,21 @@ function Gallery({ searchData }) {
       }
     } catch (error) {
       console.log(error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   useEffect(() => {
-    setImages([]); // Clear images when searchData changes
-    setPage(1);
-  }, [searchData]);
-
-  useEffect(() => {
+    if (searchData && searchData.length > 0) {
+      setImages([]);
+      setPage(1);
+    }
     fetchImages(page);
   }, [page, searchData]);
 
   useEffect(() => {
     window.addEventListener("scroll", handleScroll);
-    // return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   return (
@@ -84,6 +90,7 @@ function Gallery({ searchData }) {
           </div>
         </div>
       </div>
+      {isLoading && <p className="text-5xl">Loading Moree....</p>}
     </>
   );
 }

@@ -1,15 +1,18 @@
 import React from "react";
 import { useState } from "react";
 import { FaSearch } from "react-icons/fa"; // Import the search icon
+import { useDispatch } from "react-redux";
+import { setSearchData } from "../../redux/searchSlice";
 
-const SearchBar = ({ setSearchData }) => {
+const SearchBar = () => {
   const [search, setSearch] = useState("");
+  const dispatch = useDispatch;
 
   const handleSearch = (event) => {
     setSearch(event.target.value);
   };
-  const handleSubmit = (event) => {
-    setSearchData(search);
+  const handleSubmit = () => {
+    dispatch(setSearchData(search));
   };
   return (
     <div className="border border-blue-100 rounded-md flex items-center">
