@@ -19,13 +19,13 @@ const SearchBar = () => {
 
   return (
     <form onSubmit={handleSubmit} className="w-full max-w-md mx-auto">
-      <div className="flex items-center  rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300">
+      <div className="flex items-center  rounded-lg overflow-hidden border border-blue-100 shadow-sm hover:shadow-md transition-shadow duration-300">
         <input
           type="text"
           placeholder="Search..."
           value={search}
           onChange={handleSearch}
-          className="w-full px-4 py-2 text-gray-700 leading-tight  outline-none"
+          className="y-700 leadw-full px-4 py-2 text-graing-tight outline-none"
         />
         <button
           type="submit"

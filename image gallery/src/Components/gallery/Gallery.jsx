@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useSelector } from "react-redux";
-
+import Searchbar from "../navbar/SearchBar";
 
 function Gallery() {
   const searchData = useSelector((state) => state.search.searchData);
@@ -11,7 +11,6 @@ function Gallery() {
   const ACCESS_KEY = "pPAAKdRDW1Bdnbb8JSuudEmMxxi5KGu2EucdXqEDNW8";
 
   const handleScroll = () => {
-
     let timeout;
     setIsLoading(true);
     clearTimeout(timeout);
@@ -71,6 +70,9 @@ function Gallery() {
           <h1 className="text-4xl text-blue-400 font-bold text-center mt-10">
             Image Gallery
           </h1>
+          <div className="mt-10">
+            <Searchbar />
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-10">
             {images.map((image) => {
               return (

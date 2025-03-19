@@ -56,13 +56,13 @@ function ImageGenerator() {
         onSubmit={handleSubmit}
         className="w-full max-w-md flex justify-center"
       >
-        <div className="flex items-center w-full rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300">
+        <div className="flex items-center w-full rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300 border border-blue-100">
           <input
             type="text"
             placeholder="Enter image description..."
             value={text}
             onChange={(e) => setText(e.target.value)}
-            className="w-full px-4 py-2 text-gray-700 leading-tight border border-gray-300 outline-none focus:border-blue-500"
+            className="w-full px-4 py-2 text-gray-700 leading-tight outline-none"
           />
           <button
             type="submit"
