@@ -18,7 +18,6 @@ function ImageGenerator() {
   const [imageUrl,      setImageUrl]      = useState("");
   const [text,          setText]          = useState("");
   const [loading,       setLoading]       = useState(false);
-  const [error,         setError]         = useState("");
   const [history,       setHistory]       = useState([]);
   const [selectedModel, setSelectedModel] = useState("flux");
 
@@ -26,7 +25,6 @@ function ImageGenerator() {
     e.preventDefault();
     if (!text.trim()) return;
 
-    setError("");
     setLoading(true);
     setImageUrl("");
 
@@ -54,7 +52,7 @@ function ImageGenerator() {
         ...prev.slice(0, 4),
       ]);
     } catch (err) {
-      setError(err.message || "Failed to generate image. Please try again.");
+      console.error("[generate]", err.message);
     } finally {
       setLoading(false);
     }
@@ -161,12 +159,6 @@ function ImageGenerator() {
               {loading ? "Generating..." : "Generate Image"}
             </button>
           </form>
-
-          {error && (
-            <div style={{ border: "1px solid #5a2020", background: "#1a0a0a", padding: "10px 12px", fontFamily: "var(--font-mono)", fontSize: "9px", color: "#c47070", letterSpacing: "0.5px" }}>
-              {error}
-            </div>
-          )}
 
           <div>
             <label style={lbl}>Suggestions</label>
