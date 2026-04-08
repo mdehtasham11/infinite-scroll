@@ -1,8 +1,6 @@
 import React, { useState } from "react";
 import { FaDownload, FaExpand } from "react-icons/fa";
 
-const HF_TOKEN = import.meta.env.VITE_HUGGINGFACE_API_KEY || "";
-
 const suggestions = [
   "A futuristic cityscape at sunset",
   "Magical forest with glowing mushrooms",
@@ -12,9 +10,12 @@ const suggestions = [
 ];
 
 const models = [
-  { value: "flux", label: "FLUX Schnell",     provider: "HuggingFace", hfModel: "black-forest-labs/FLUX.1-schnell"                    },
-  { value: "sd",   label: "Stable Diffusion", provider: "HuggingFace", hfModel: "stabilityai/stable-diffusion-xl-base-1.0" },
+  { value: "flux", label: "FLUX Schnell",     pollinationsModel: "flux"  },
+  { value: "sd",   label: "Stable Diffusion", pollinationsModel: "turbo" },
 ];
+
+const buildImageUrl = (prompt, pollinationsModel) =>
+  `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?model=${pollinationsModel}&width=1024&height=1024&nologo=true&seed=${Date.now()}`;
 
 function ImageGenerator() {
   const [imageUrl,      setImageUrl]      = useState("");
@@ -24,37 +25,26 @@ function ImageGenerator() {
   const [history,       setHistory]       = useState([]);
   const [selectedModel, setSelectedModel] = useState("flux");
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     if (!text.trim()) return;
-    setError(""); setImageUrl(""); setLoading(true);
-    try {
-      const activeModel = models.find((m) => m.value === selectedModel);
-      const res = await fetch(
-        `https://api-inference.huggingface.co/models/${activeModel.hfModel}`,
-        {
-          method: "POST",
-          headers: {
-            "Authorization": `Bearer ${HF_TOKEN}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ inputs: text }),
-        }
-      );
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        throw new Error(err.error || `API error ${res.status}`);
-      }
-      const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
+    const activeModel = models.find((m) => m.value === selectedModel);
+    const url = buildImageUrl(text, activeModel.pollinationsModel);
+    setError("");
+    setImageUrl("");
+    setLoading(true);
+    // preload — onLoad/onError on the <img> will stop the spinner
+    const img = new Image();
+    img.src = url;
+    img.onload = () => {
       setImageUrl(url);
-      setHistory((prev) => [{ prompt: text, imageUrl: url, model: selectedModel, timestamp: new Date() }, ...prev.slice(0, 4)]);
-    } catch (err) {
-      console.error(err);
-      setError(err.message || "Failed to generate image. Please try again.");
-    } finally {
       setLoading(false);
-    }
+      setHistory((prev) => [{ prompt: text, imageUrl: url, model: selectedModel, timestamp: new Date() }, ...prev.slice(0, 4)]);
+    };
+    img.onerror = () => {
+      setError("Failed to generate image. Please try again.");
+      setLoading(false);
+    };
   };
 
   const downloadImage = async () => {
@@ -89,7 +79,7 @@ function ImageGenerator() {
       <div style={{ padding: "20px 32px", borderBottom: "1px solid var(--border)", display: "flex", alignItems: "baseline", gap: "16px" }}>
         <h1 style={{ fontFamily: "var(--font-serif)", fontWeight: 300, fontStyle: "italic", fontSize: "28px", color: "var(--text)" }}>AI Generator</h1>
         <span style={{ fontFamily: "var(--font-mono)", fontSize: "8px", letterSpacing: "2px", color: "var(--text-muted)" }}>
-          {activeModel.label.toUpperCase()} · {activeModel.provider.toUpperCase()}
+          {activeModel.label.toUpperCase()} · POLLINATIONS
         </span>
       </div>
 
@@ -226,9 +216,9 @@ function ImageGenerator() {
           {imageUrl && (
             <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "8px", marginTop: "12px" }}>
               {[
-                ["1024×1024",          "Resolution"],
-                [activeModel.label,    "Model"     ],
-                [activeModel.provider, "Provider"  ],
+                ["1024×1024",       "Resolution" ],
+                [activeModel.label, "Model"      ],
+                ["Pollinations",    "Provider"   ],
               ].map(([val, label]) => (
                 <div key={label} style={{ border: "1px solid var(--border)", padding: "12px", textAlign: "center" }}>
                   <div style={{ fontFamily: "var(--font-mono)", fontSize: "10px", color: "var(--text)", marginBottom: "4px" }}>{val}</div>
