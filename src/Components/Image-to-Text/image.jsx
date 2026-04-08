@@ -1,12 +1,8 @@
 import React, { useState } from "react";
 import { FaDownload, FaExpand } from "react-icons/fa";
-import OpenAI from "openai";
 
-const openai = new OpenAI({
-  baseURL: "https://api.studio.nebius.com/v1/",
-  apiKey: import.meta.env.VITE_NEBIUS_API_KEY || "eyJhbGciOiJIUzI1NiIsImtpZCI6IlV6SXJWd1h0dnprLVRvdzlLZWstc0M1akptWXBvX1VaVkxUZlpnMDRlOFUiLCJ0eXAiOiJKV1QifQ.eyJzdWIiOiJnb29nbGUtb2F1dGgyfDEwNDM4MjE5NzY1NzY5ODQ1MDg5MyIsInNjb3BlIjoib3BlbmlkIG9mZmxpbmVfYWNjZXNzIiwiaXNzIjoiYXBpX2tleV9pc3N1ZXIiLCJhdWQiOlsiaHR0cHM6Ly9uZWJpdXMtaW5mZXJlbmNlLmV1LmF1dGgwLmNvbS9hcGkvdjIvIl0sImV4cCI6MTg5OTgzODMyNiwidXVpZCI6IjViZTM4ZDFkLTRlYjMtNGRjNy1hNTRmLWNjMzlkZGNlMmVmNCIsIm5hbWUiOiJpbWFnZS1nZW5lcmF0aW9uIiwiZXhwaXJlc19hdCI6IjIwMzAtMDMtMTVUMjA6NTI6MDYrMDAwMCJ9.io4jLb7ff3y5OXmNadeU9WKg66Aejr9DMn9N-tCeZHU",
-  dangerouslyAllowBrowser: true,
-});
+const TOGETHER_API_KEY  = import.meta.env.VITE_TOGETHER_API_KEY  || "";
+const HUGGINGFACE_API_KEY = import.meta.env.VITE_HUGGINGFACE_API_KEY || "";
 
 const suggestions = [
   "A futuristic cityscape at sunset",
@@ -16,31 +12,73 @@ const suggestions = [
   "Cyberpunk street scene at night",
 ];
 
+const models = [
+  { value: "flux", label: "FLUX Schnell",      provider: "Together AI"   },
+  { value: "sd",   label: "Stable Diffusion",  provider: "HuggingFace"   },
+];
+
 function ImageGenerator() {
-  const [imageUrl, setImageUrl] = useState("");
-  const [text,     setText]     = useState("");
-  const [loading,  setLoading]  = useState(false);
-  const [error,    setError]    = useState("");
-  const [history,  setHistory]  = useState([]);
+  const [imageUrl,      setImageUrl]      = useState("");
+  const [text,          setText]          = useState("");
+  const [loading,       setLoading]       = useState(false);
+  const [error,         setError]         = useState("");
+  const [history,       setHistory]       = useState([]);
+  const [selectedModel, setSelectedModel] = useState("flux");
+
+  const generateFlux = async (prompt) => {
+    const res = await fetch("https://api.together.xyz/v1/images/generations", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${TOGETHER_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "black-forest-labs/FLUX.1-schnell",
+        prompt,
+        n: 1,
+        steps: 4,
+      }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error?.message || `Together AI error: ${res.status}`);
+    const url = data.data?.[0]?.url;
+    if (!url) throw new Error("No image URL returned from FLUX");
+    return url;
+  };
+
+  const generateSD = async (prompt) => {
+    const res = await fetch(
+      "https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-xl-base-1.0",
+      {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${HUGGINGFACE_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ inputs: prompt }),
+      }
+    );
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || `HuggingFace error: ${res.status}`);
+    }
+    const blob = await res.blob();
+    return URL.createObjectURL(blob);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!text.trim()) return;
     setError(""); setImageUrl(""); setLoading(true);
     try {
-      const response = await openai.images.generate({
-        model: "black-forest-labs/flux-schnell",
-        prompt: text,
-        n: 1,
-        size: "1024x1024",
-      });
-      const url = response.data?.[0]?.url;
-      if (!url) throw new Error("No image URL returned");
+      const url = selectedModel === "flux"
+        ? await generateFlux(text)
+        : await generateSD(text);
       setImageUrl(url);
-      setHistory((prev) => [{ prompt: text, imageUrl: url, timestamp: new Date() }, ...prev.slice(0, 4)]);
+      setHistory((prev) => [{ prompt: text, imageUrl: url, model: selectedModel, timestamp: new Date() }, ...prev.slice(0, 4)]);
     } catch (err) {
       console.error(err);
-      setError("Failed to generate image. Please try again.");
+      setError(err.message || "Failed to generate image. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -69,13 +107,17 @@ function ImageGenerator() {
     display: "block",
   };
 
+  const activeModel = models.find((m) => m.value === selectedModel);
+
   return (
     <div style={{ background: "var(--bg)", minHeight: "100vh" }}>
 
       {/* Header */}
       <div style={{ padding: "20px 32px", borderBottom: "1px solid var(--border)", display: "flex", alignItems: "baseline", gap: "16px" }}>
         <h1 style={{ fontFamily: "var(--font-serif)", fontWeight: 300, fontStyle: "italic", fontSize: "28px", color: "var(--text)" }}>AI Generator</h1>
-        <span style={{ fontFamily: "var(--font-mono)", fontSize: "8px", letterSpacing: "2px", color: "var(--text-muted)" }}>FLUX · NEBIUS</span>
+        <span style={{ fontFamily: "var(--font-mono)", fontSize: "8px", letterSpacing: "2px", color: "var(--text-muted)" }}>
+          {activeModel.label.toUpperCase()} · {activeModel.provider.toUpperCase()}
+        </span>
       </div>
 
       {/* 2-column layout */}
@@ -84,6 +126,37 @@ function ImageGenerator() {
         {/* Sidebar */}
         <div className="panel-border-r" style={{ padding: "24px", display: "flex", flexDirection: "column", gap: "24px" }}>
           <form onSubmit={handleSubmit}>
+
+            {/* Model selector */}
+            <label style={lbl}>Model</label>
+            <select
+              value={selectedModel}
+              onChange={(e) => setSelectedModel(e.target.value)}
+              style={{
+                width: "100%",
+                background: "var(--surface-2)",
+                border: "1px solid var(--border)",
+                color: "var(--text)",
+                fontFamily: "var(--font-mono)",
+                fontSize: "9px",
+                letterSpacing: "0.5px",
+                padding: "9px 10px",
+                outline: "none",
+                cursor: "pointer",
+                marginBottom: "20px",
+                transition: "border-color 0.2s",
+              }}
+              onFocus={(e) => (e.target.style.borderColor = "var(--gold)")}
+              onBlur={(e) => (e.target.style.borderColor = "var(--border)")}
+            >
+              {models.map((m) => (
+                <option key={m.value} value={m.value} style={{ background: "var(--surface-2)" }}>
+                  {m.label} — {m.provider}
+                </option>
+              ))}
+            </select>
+
+            {/* Prompt */}
             <label style={lbl}>Prompt</label>
             <textarea
               value={text}
@@ -131,7 +204,7 @@ function ImageGenerator() {
               {history.slice(0, 3).map((item, i) => (
                 <div
                   key={i}
-                  onClick={() => { setText(item.prompt); setImageUrl(item.imageUrl); }}
+                  onClick={() => { setText(item.prompt); setImageUrl(item.imageUrl); setSelectedModel(item.model); }}
                   style={{ display: "flex", gap: "10px", alignItems: "center", padding: "8px 0", borderBottom: "1px solid var(--border-light)", cursor: "pointer" }}
                 >
                   <img src={item.imageUrl} alt="" style={{ width: "36px", height: "36px", objectFit: "cover" }} />
@@ -179,7 +252,11 @@ function ImageGenerator() {
 
           {imageUrl && (
             <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "8px", marginTop: "12px" }}>
-              {[["1024×1024", "Resolution"], ["Flux Schnell", "Model"], ["AI Generated", "Type"]].map(([val, label]) => (
+              {[
+                ["1024×1024",          "Resolution"],
+                [activeModel.label,    "Model"     ],
+                [activeModel.provider, "Provider"  ],
+              ].map(([val, label]) => (
                 <div key={label} style={{ border: "1px solid var(--border)", padding: "12px", textAlign: "center" }}>
                   <div style={{ fontFamily: "var(--font-mono)", fontSize: "10px", color: "var(--text)", marginBottom: "4px" }}>{val}</div>
                   <div style={{ fontFamily: "var(--font-mono)", fontSize: "8px", letterSpacing: "2px", color: "var(--text-muted)", textTransform: "uppercase" }}>{label}</div>
