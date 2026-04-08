@@ -11,14 +11,22 @@ const suggestions = [
   "Minimalist design",
 ];
 
-const SearchBar = () => {
+const SearchBar = ({ onAfterSearch } = {}) => {
   const [search,    setSearch]    = useState("");
   const [isFocused, setIsFocused] = useState(false);
   const dispatch = useDispatch();
 
+  const submit = (query) => {
+    const q = query.trim();
+    if (!q) return;
+    dispatch(setSearchData(q));
+    setIsFocused(false);
+    onAfterSearch?.();
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (search.trim()) dispatch(setSearchData(search.trim()));
+    submit(search);
   };
 
   const clearSearch = () => {
@@ -121,7 +129,7 @@ const SearchBar = () => {
           {suggestions.map((s, i) => (
             <button
               key={i}
-              onMouseDown={() => setSearch(s)}
+              onMouseDown={() => { setSearch(s); submit(s); }}
               style={{
                 display: "block",
                 width: "100%",

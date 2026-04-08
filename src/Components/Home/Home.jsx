@@ -1,5 +1,5 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import SearchBar from "../navbar/SearchBar";
 
 const features = [
@@ -24,7 +24,9 @@ const featuredImages = [
   { url: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&auto=format&fit=crop&q=80&crop=bottom", title: "Lake Reflection"           },
 ];
 
-const Home = () => (
+const Home = () => {
+  const navigate = useNavigate();
+  return (
   <div style={{ background: "var(--bg)" }}>
 
     {/* ── Hero ── */}
@@ -40,7 +42,7 @@ const Home = () => (
         <p style={{ fontFamily: "var(--font-mono)", fontSize: "10px", letterSpacing: "2px", textTransform: "uppercase", color: "var(--text-muted)", marginBottom: "32px" }}>
           Explore the world through a lens
         </p>
-        <SearchBar />
+        <SearchBar onAfterSearch={() => navigate("/gallery")} />
         <div style={{ display: "flex", gap: "16px", marginTop: "32px", flexWrap: "wrap" }}>
           <Link to="/gallery"><button className="btn-gold">Explore Gallery</button></Link>
           <Link to="/image"><button className="btn-outline">Generate AI Images</button></Link>
@@ -130,6 +132,7 @@ const Home = () => (
       </div>
     </section>
   </div>
-);
+  );
+};
 
 export default Home;
