@@ -18,8 +18,8 @@ export default async function handler(req, res) {
 
   const HF_MODEL =
     model === "flux"
-      ? "black-forest-labs/FLUX.1-schnell"          // FLUX Schnell — free on HF
-      : "stabilityai/stable-diffusion-xl-base-1.0"; // Stable Diffusion XL
+      ? "black-forest-labs/FLUX.1-schnell"        // FLUX Schnell
+      : "stabilityai/stable-diffusion-3.5-large"; // Stable Diffusion 3.5
 
   try {
     const r = await fetch(
