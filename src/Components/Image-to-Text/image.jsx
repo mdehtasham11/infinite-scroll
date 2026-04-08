@@ -11,7 +11,7 @@ const suggestions = [
 
 const models = [
   { value: "flux", label: "FLUX Schnell",     provider: "Replicate"    },
-  { value: "sd",   label: "Stable Diffusion 3.5", provider: "HuggingFace"  },
+  { value: "sd",   label: "Stable Diffusion", provider: "Pollinations"  },
 ];
 
 function ImageGenerator() {
