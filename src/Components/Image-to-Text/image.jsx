@@ -1,8 +1,10 @@
 import React, { useState } from "react";
 import { FaDownload, FaExpand } from "react-icons/fa";
+import Replicate from "replicate";
 
-const TOGETHER_API_KEY  = import.meta.env.VITE_TOGETHER_API_KEY  || "";
-const HUGGINGFACE_API_KEY = import.meta.env.VITE_HUGGINGFACE_API_KEY || "";
+const replicate = new Replicate({
+  auth: import.meta.env.VITE_REPLICATE_API_TOKEN || "",
+});
 
 const suggestions = [
   "A futuristic cityscape at sunset",
@@ -13,8 +15,8 @@ const suggestions = [
 ];
 
 const models = [
-  { value: "flux", label: "FLUX Schnell",      provider: "Together AI"   },
-  { value: "sd",   label: "Stable Diffusion",  provider: "HuggingFace"   },
+  { value: "flux", label: "FLUX Schnell",     provider: "Replicate", model: "black-forest-labs/flux-schnell" },
+  { value: "sd",   label: "Stable Diffusion", provider: "Replicate", model: "stability-ai/sdxl"              },
 ];
 
 function ImageGenerator() {
@@ -25,57 +27,24 @@ function ImageGenerator() {
   const [history,       setHistory]       = useState([]);
   const [selectedModel, setSelectedModel] = useState("flux");
 
-  const generateFlux = async (prompt) => {
-    const res = await fetch("https://api.together.xyz/v1/images/generations", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${TOGETHER_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "black-forest-labs/FLUX.1-schnell",
-        prompt,
-        n: 1,
-        steps: 4,
-      }),
-    });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error?.message || `Together AI error: ${res.status}`);
-    const url = data.data?.[0]?.url;
-    if (!url) throw new Error("No image URL returned from FLUX");
-    return url;
-  };
-
-  const generateSD = async (prompt) => {
-    const res = await fetch(
-      "https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-xl-base-1.0",
-      {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${HUGGINGFACE_API_KEY}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ inputs: prompt }),
-      }
-    );
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      throw new Error(err.error || `HuggingFace error: ${res.status}`);
-    }
-    const blob = await res.blob();
-    return URL.createObjectURL(blob);
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!text.trim()) return;
     setError(""); setImageUrl(""); setLoading(true);
     try {
-      const url = selectedModel === "flux"
-        ? await generateFlux(text)
-        : await generateSD(text);
-      setImageUrl(url);
-      setHistory((prev) => [{ prompt: text, imageUrl: url, model: selectedModel, timestamp: new Date() }, ...prev.slice(0, 4)]);
+      const activeModel = models.find((m) => m.value === selectedModel);
+      const output = await replicate.run(activeModel.model, {
+        input: { prompt: text },
+      });
+      // Replicate returns an array of URLs (or a ReadableStream for some models)
+      const url = Array.isArray(output) ? output[0] : output;
+      if (!url) throw new Error("No image returned from Replicate");
+      // Convert ReadableStream to blob URL if needed
+      const imageUrl = url instanceof ReadableStream
+        ? URL.createObjectURL(await new Response(url).blob())
+        : String(url);
+      setImageUrl(imageUrl);
+      setHistory((prev) => [{ prompt: text, imageUrl, model: selectedModel, timestamp: new Date() }, ...prev.slice(0, 4)]);
     } catch (err) {
       console.error(err);
       setError(err.message || "Failed to generate image. Please try again.");
