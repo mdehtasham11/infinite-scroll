@@ -10,12 +10,9 @@ const suggestions = [
 ];
 
 const models = [
-  { value: "flux", label: "FLUX Schnell",     pollinationsModel: "flux"  },
-  { value: "sd",   label: "Stable Diffusion", pollinationsModel: "turbo" },
+  { value: "flux", label: "FLUX Schnell",     provider: "Replicate"    },
+  { value: "sd",   label: "Stable Diffusion", provider: "HuggingFace"  },
 ];
-
-const buildImageUrl = (prompt, pollinationsModel) =>
-  `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?model=${pollinationsModel}&width=1024&height=1024&seed=${Date.now()}`;
 
 function ImageGenerator() {
   const [imageUrl,      setImageUrl]      = useState("");
@@ -28,18 +25,35 @@ function ImageGenerator() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!text.trim()) return;
-    const activeModel = models.find((m) => m.value === selectedModel);
-    const url = buildImageUrl(text, activeModel.pollinationsModel);
-    setError(""); setImageUrl(""); setLoading(true);
+
+    setError("");
+    setLoading(true);
+    setImageUrl("");
+
     try {
-      const res = await fetch(url);
-      if (!res.ok) throw new Error(`Generation failed (${res.status})`);
-      const blob = await res.blob();
-      const objectUrl = URL.createObjectURL(blob);
-      setImageUrl(objectUrl);
-      setHistory((prev) => [{ prompt: text, imageUrl: objectUrl, model: selectedModel, timestamp: new Date() }, ...prev.slice(0, 4)]);
+      const res = await fetch("/api/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt: text, model: selectedModel }),
+      });
+
+      // Parse body safely — empty or HTML response won't throw here
+      const raw = await res.text();
+      if (!raw) throw new Error("Server returned an empty response. Run the app with 'vercel dev' instead of 'npm run dev'.");
+
+      let data;
+      try { data = JSON.parse(raw); }
+      catch { throw new Error("Server returned a non-JSON response. Make sure you're running 'vercel dev'."); }
+
+      if (!res.ok) throw new Error(data.error || `Server error ${res.status}`);
+      if (!data.imageUrl) throw new Error("No image returned from server");
+
+      setImageUrl(data.imageUrl);
+      setHistory((prev) => [
+        { prompt: text, imageUrl: data.imageUrl, model: selectedModel, timestamp: new Date() },
+        ...prev.slice(0, 4),
+      ]);
     } catch (err) {
-      console.error(err);
       setError(err.message || "Failed to generate image. Please try again.");
     } finally {
       setLoading(false);
@@ -49,13 +63,22 @@ function ImageGenerator() {
   const downloadImage = async () => {
     if (!imageUrl) return;
     try {
-      const blob = await (await fetch(imageUrl)).blob();
-      const a = Object.assign(document.createElement("a"), {
-        href: window.URL.createObjectURL(blob),
-        download: `ai-generated-${Date.now()}.jpg`,
-      });
-      document.body.appendChild(a); a.click(); document.body.removeChild(a);
-      window.URL.revokeObjectURL(a.href);
+      // base64 data URLs can be downloaded directly; CDN URLs need fetch
+      if (imageUrl.startsWith("data:")) {
+        const a = Object.assign(document.createElement("a"), {
+          href: imageUrl,
+          download: `ai-generated-${Date.now()}.jpg`,
+        });
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      } else {
+        const blob = await (await fetch(imageUrl)).blob();
+        const a = Object.assign(document.createElement("a"), {
+          href: window.URL.createObjectURL(blob),
+          download: `ai-generated-${Date.now()}.webp`,
+        });
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        window.URL.revokeObjectURL(a.href);
+      }
     } catch (err) { console.error(err); }
   };
 
@@ -78,7 +101,7 @@ function ImageGenerator() {
       <div style={{ padding: "20px 32px", borderBottom: "1px solid var(--border)", display: "flex", alignItems: "baseline", gap: "16px" }}>
         <h1 style={{ fontFamily: "var(--font-serif)", fontWeight: 300, fontStyle: "italic", fontSize: "28px", color: "var(--text)" }}>AI Generator</h1>
         <span style={{ fontFamily: "var(--font-mono)", fontSize: "8px", letterSpacing: "2px", color: "var(--text-muted)" }}>
-          {activeModel.label.toUpperCase()} · POLLINATIONS
+          {activeModel.label.toUpperCase()} · {activeModel.provider.toUpperCase()}
         </span>
       </div>
 
@@ -186,6 +209,7 @@ function ImageGenerator() {
               <div style={{ textAlign: "center" }}>
                 <div style={{ width: "32px", height: "32px", border: "1px solid var(--border)", borderTop: "1px solid var(--gold)", borderRadius: "50%", animation: "spin 0.8s linear infinite", margin: "0 auto 16px" }} />
                 <div style={{ fontFamily: "var(--font-mono)", fontSize: "9px", letterSpacing: "3px", color: "var(--text-muted)", textTransform: "uppercase" }}>Generating</div>
+                <div style={{ fontFamily: "var(--font-mono)", fontSize: "8px", letterSpacing: "1px", color: "var(--text-dim)", marginTop: "8px" }}>This may take 15–30 seconds</div>
               </div>
             ) : imageUrl ? (
               <>
@@ -212,12 +236,12 @@ function ImageGenerator() {
             )}
           </div>
 
-          {imageUrl && (
+          {imageUrl && !loading && (
             <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "8px", marginTop: "12px" }}>
               {[
-                ["1024×1024",       "Resolution" ],
-                [activeModel.label, "Model"      ],
-                ["Pollinations",    "Provider"   ],
+                ["AI Generated",      "Type"     ],
+                [activeModel.label,   "Model"    ],
+                [activeModel.provider,"Provider" ],
               ].map(([val, label]) => (
                 <div key={label} style={{ border: "1px solid var(--border)", padding: "12px", textAlign: "center" }}>
                   <div style={{ fontFamily: "var(--font-mono)", fontSize: "10px", color: "var(--text)", marginBottom: "4px" }}>{val}</div>
