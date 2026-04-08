@@ -88,8 +88,16 @@ function Gallery() {
     }
   };
 
-  useEffect(() => { setImages([]); setPage(1); }, [searchData]);
-  useEffect(() => { fetchImages(page); }, [page]);
+  useEffect(() => {
+    setImages([]);
+    setPage(1);
+    fetchImages(1);
+  }, [searchData]);
+
+  useEffect(() => {
+    if (page === 1) return; // already fetched by searchData effect
+    fetchImages(page);
+  }, [page]);
 
   const handleScroll = useCallback(
     throttle(() => {
