@@ -25,26 +25,25 @@ function ImageGenerator() {
   const [history,       setHistory]       = useState([]);
   const [selectedModel, setSelectedModel] = useState("flux");
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!text.trim()) return;
     const activeModel = models.find((m) => m.value === selectedModel);
     const url = buildImageUrl(text, activeModel.pollinationsModel);
-    setError("");
-    setImageUrl("");
-    setLoading(true);
-    // preload — onLoad/onError on the <img> will stop the spinner
-    const img = new Image();
-    img.src = url;
-    img.onload = () => {
-      setImageUrl(url);
+    setError(""); setImageUrl(""); setLoading(true);
+    try {
+      const res = await fetch(url);
+      if (!res.ok) throw new Error(`Generation failed (${res.status})`);
+      const blob = await res.blob();
+      const objectUrl = URL.createObjectURL(blob);
+      setImageUrl(objectUrl);
+      setHistory((prev) => [{ prompt: text, imageUrl: objectUrl, model: selectedModel, timestamp: new Date() }, ...prev.slice(0, 4)]);
+    } catch (err) {
+      console.error(err);
+      setError(err.message || "Failed to generate image. Please try again.");
+    } finally {
       setLoading(false);
-      setHistory((prev) => [{ prompt: text, imageUrl: url, model: selectedModel, timestamp: new Date() }, ...prev.slice(0, 4)]);
-    };
-    img.onerror = () => {
-      setError("Failed to generate image. Please try again.");
-      setLoading(false);
-    };
+    }
   };
 
   const downloadImage = async () => {
