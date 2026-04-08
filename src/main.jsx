@@ -8,6 +8,7 @@ import Home from "./Components/Home/Home";
 import Gallery from "./Components/gallery/Gallery";
 import About from "./Components/about/About";
 import Image from "./Components/Image-to-Text/image";
+import ImageEditor from "./Components/Image-to-Text/ImageEditor";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
 const router = createBrowserRouter([
@@ -30,6 +31,10 @@ const router = createBrowserRouter([
       {
         path: "image",
         element: <Image />,
+      },
+      {
+        path: "editor",
+        element: <ImageEditor />,
       },
     ],
   },
