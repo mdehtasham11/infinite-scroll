@@ -15,7 +15,7 @@ const models = [
 ];
 
 const buildImageUrl = (prompt, pollinationsModel) =>
-  `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?model=${pollinationsModel}&width=1024&height=1024&nologo=true&seed=${Date.now()}`;
+  `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?model=${pollinationsModel}&width=1024&height=1024&seed=${Date.now()}`;
 
 function ImageGenerator() {
   const [imageUrl,      setImageUrl]      = useState("");
