@@ -28,7 +28,7 @@ const Home = () => (
   <div style={{ background: "var(--bg)" }}>
 
     {/* ── Hero ── */}
-    <section style={{ padding: "72px 48px 64px", borderBottom: "1px solid var(--border)" }}>
+    <section className="px-section" style={{ paddingTop: "72px", paddingBottom: "64px", borderBottom: "1px solid var(--border)" }}>
       <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
         <div className="label-mono" style={{ marginBottom: "24px" }}>Issue 001 — Photography · 2026</div>
         <h1 className="serif-display" style={{ fontSize: "clamp(56px, 8vw, 96px)", lineHeight: 0.88, marginBottom: "24px" }}>
@@ -55,15 +55,15 @@ const Home = () => (
     </div>
 
     {/* ── Featured Images ── */}
-    <section style={{ padding: "48px", borderBottom: "1px solid var(--border)" }}>
+    <section className="px-section" style={{ paddingTop: "48px", paddingBottom: "48px", borderBottom: "1px solid var(--border)" }}>
       <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: "20px" }}>
           <h2 className="serif-display" style={{ fontSize: "32px" }}>Featured</h2>
           <span style={{ fontFamily: "var(--font-mono)", fontSize: "9px", color: "var(--text-muted)", letterSpacing: "2px" }}>04 images</span>
         </div>
-        <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr", gridTemplateRows: "180px 180px", gap: "3px" }}>
+        <div className="grid-featured">
           {featuredImages.map((img, i) => (
-            <div key={i} style={{ gridRow: img.span ? "span 2" : "auto", position: "relative", overflow: "hidden", background: "var(--surface-2)" }}>
+            <div key={i} className={img.span ? "featured-main" : undefined} style={{ position: "relative", overflow: "hidden", background: "var(--surface-2)" }}>
               <img
                 src={img.url}
                 alt={img.title}
@@ -82,7 +82,7 @@ const Home = () => (
     </section>
 
     {/* ── Features — numbered list ── */}
-    <section style={{ padding: "48px", background: "var(--surface)", borderBottom: "1px solid var(--border)" }}>
+    <section className="px-section" style={{ paddingTop: "48px", paddingBottom: "48px", background: "var(--surface)", borderBottom: "1px solid var(--border)" }}>
       <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
         <div className="label-mono" style={{ marginBottom: "32px" }}>Capabilities</div>
         {features.map((f, i) => (
@@ -99,12 +99,12 @@ const Home = () => (
     </section>
 
     {/* ── Stats ── */}
-    <section style={{ padding: "64px 48px", borderBottom: "1px solid var(--border)" }}>
+    <section className="px-section" style={{ paddingTop: "64px", paddingBottom: "64px", borderBottom: "1px solid var(--border)" }}>
       <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
         <div className="label-mono" style={{ marginBottom: "40px" }}>By the numbers</div>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)" }}>
+        <div className="grid-stats">
           {stats.map((s, i) => (
-            <div key={i} style={{ padding: "0 32px", borderLeft: i > 0 ? "1px solid var(--border)" : "none" }}>
+            <div key={i} className="stat-item">
               <div className="serif-display" style={{ fontSize: "56px", lineHeight: 1, color: "var(--gold)", marginBottom: "8px" }}>{s.number}</div>
               <div style={{ fontFamily: "var(--font-mono)", fontSize: "9px", letterSpacing: "2px", textTransform: "uppercase", color: "var(--text-muted)" }}>{s.label}</div>
             </div>
@@ -114,7 +114,7 @@ const Home = () => (
     </section>
 
     {/* ── CTA ── */}
-    <section style={{ padding: "72px 48px", background: "var(--surface)" }}>
+    <section className="px-section" style={{ paddingTop: "72px", paddingBottom: "72px", background: "var(--surface)" }}>
       <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
         <h2 className="serif-display" style={{ fontSize: "clamp(36px, 5vw, 64px)", fontStyle: "italic", marginBottom: "16px" }}>
           Ready to <span style={{ color: "var(--gold)" }}>Explore?</span>

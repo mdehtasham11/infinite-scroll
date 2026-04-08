@@ -37,7 +37,7 @@ function Footer() {
   return (
     <footer style={{ borderTop: "1px solid var(--border)", background: "var(--bg)" }}>
       <div style={{ maxWidth: "1400px", margin: "0 auto", padding: "48px 48px 0" }}>
-        <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr", gap: "48px" }}>
+        <div className="grid-footer">
 
           {/* Brand */}
           <div>

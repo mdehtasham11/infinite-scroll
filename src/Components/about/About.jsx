@@ -63,7 +63,7 @@ const About = () => (
   <div style={{ background: "var(--bg)" }}>
 
     {/* Hero */}
-    <section style={{ padding: "72px 48px 64px", borderBottom: "1px solid var(--border)" }}>
+    <section className="px-section" style={{ paddingTop: "72px", paddingBottom: "64px", borderBottom: "1px solid var(--border)" }}>
       <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
         <div className="label-mono" style={{ marginBottom: "24px" }}>About — Visual Gallery</div>
         <h1 className="serif-display" style={{ fontSize: "clamp(48px, 7vw, 80px)", lineHeight: 0.9, marginBottom: "24px" }}>
@@ -77,7 +77,7 @@ const About = () => (
     </section>
 
     {/* Features */}
-    <section style={{ padding: "48px", background: "var(--surface)", borderBottom: "1px solid var(--border)" }}>
+    <section className="px-section" style={{ paddingTop: "48px", paddingBottom: "48px", background: "var(--surface)", borderBottom: "1px solid var(--border)" }}>
       <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
         <div className="label-mono" style={{ marginBottom: "32px" }}>What We Offer</div>
         {features.map((f, i) => (
@@ -94,12 +94,12 @@ const About = () => (
     </section>
 
     {/* Stats */}
-    <section style={{ padding: "64px 48px", borderBottom: "1px solid var(--border)" }}>
+    <section className="px-section" style={{ paddingTop: "64px", paddingBottom: "64px", borderBottom: "1px solid var(--border)" }}>
       <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
         <div className="label-mono" style={{ marginBottom: "40px" }}>Our Impact</div>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)" }}>
+        <div className="grid-stats">
           {stats.map((s, i) => (
-            <div key={i} style={{ padding: "0 32px", borderLeft: i > 0 ? "1px solid var(--border)" : "none" }}>
+            <div key={i} className="stat-item">
               <div className="serif-display" style={{ fontSize: "56px", lineHeight: 1, color: "var(--gold)", marginBottom: "8px" }}>{s.number}</div>
               <div style={{ fontFamily: "var(--font-mono)", fontSize: "9px", letterSpacing: "2px", textTransform: "uppercase", color: "var(--text-muted)" }}>{s.label}</div>
             </div>
@@ -109,31 +109,22 @@ const About = () => (
     </section>
 
     {/* Team */}
-    <section style={{ padding: "48px", background: "var(--surface)", borderBottom: "1px solid var(--border)" }}>
+    <section className="px-section" style={{ paddingTop: "48px", paddingBottom: "48px", background: "var(--surface)", borderBottom: "1px solid var(--border)" }}>
       <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
         <div className="label-mono" style={{ marginBottom: "32px" }}>The Team</div>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "16px" }}>
+        <div className="grid-team">
           {team.map((member, i) => <TeamCard key={i} member={member} />)}
         </div>
       </div>
     </section>
 
     {/* Values */}
-    <section style={{ padding: "48px", borderBottom: "1px solid var(--border)" }}>
+    <section className="px-section" style={{ paddingTop: "48px", paddingBottom: "48px", borderBottom: "1px solid var(--border)" }}>
       <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
         <div className="label-mono" style={{ marginBottom: "32px" }}>Our Values</div>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr" }}>
+        <div className="grid-values">
           {values.map((v, i) => (
-            <div
-              key={i}
-              style={{
-                padding: "28px",
-                paddingLeft:  i % 2 === 1 ? "32px" : "0",
-                paddingRight: i % 2 === 0 ? "32px" : "0",
-                borderTop: "1px solid var(--border)",
-                borderRight: i % 2 === 0 ? "1px solid var(--border)" : "none",
-              }}
-            >
+            <div key={i} className="values-item">
               <div style={{ borderLeft: "2px solid var(--gold)", paddingLeft: "16px" }}>
                 <h3 className="serif-display" style={{ fontSize: "22px", marginBottom: "8px" }}>{v.title}</h3>
                 <p style={{ fontFamily: "var(--font-mono)", fontSize: "9px", color: "var(--text-muted)", letterSpacing: "0.5px", lineHeight: 1.9 }}>{v.desc}</p>
@@ -146,7 +137,7 @@ const About = () => (
     </section>
 
     {/* CTA */}
-    <section style={{ padding: "72px 48px", background: "var(--surface)" }}>
+    <section className="px-section" style={{ paddingTop: "72px", paddingBottom: "72px", background: "var(--surface)" }}>
       <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
         <h2 className="serif-display" style={{ fontSize: "clamp(32px, 5vw, 56px)", fontStyle: "italic", marginBottom: "16px" }}>
           Ready to Join Our <span style={{ color: "var(--gold)" }}>Journey?</span>

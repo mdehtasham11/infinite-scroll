@@ -109,3 +109,87 @@ body {
 ::-webkit-scrollbar-track { background: var(--surface); }
 ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 0; }
 ::-webkit-scrollbar-thumb:hover { background: var(--gold); }
+
+/* ── Responsive layout utilities ── */
+
+/* Section horizontal padding */
+.px-section { padding-left: 48px; padding-right: 48px; }
+
+/* Featured image grid (Home) */
+.grid-featured {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  grid-template-rows: 180px 180px;
+  gap: 3px;
+}
+.grid-featured > .featured-main { grid-row: span 2; }
+
+/* Stats grids */
+.grid-stats { display: grid; grid-template-columns: repeat(4, 1fr); }
+.stat-item  { padding: 0 32px; }
+.stat-item + .stat-item { border-left: 1px solid var(--border); }
+
+/* Team grid (About) */
+.grid-team { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+
+/* Values grid (About) */
+.grid-values { display: grid; grid-template-columns: 1fr 1fr; }
+.values-item { padding: 28px; border-top: 1px solid var(--border); }
+.values-item:nth-child(odd)  { padding-right: 32px; border-right: 1px solid var(--border); }
+.values-item:nth-child(even) { padding-left: 32px; }
+
+/* Footer grid */
+.grid-footer { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 48px; }
+
+/* Generic 2-col grid */
+.grid-2col { display: grid; grid-template-columns: 1fr 1fr; }
+
+/* Tool page sidebar layouts */
+.grid-sidebar      { display: grid; grid-template-columns: 300px 1fr; min-height: calc(100vh - 65px); }
+.grid-sidebar-wide { display: grid; grid-template-columns: 320px 1fr; min-height: calc(100vh - 65px); }
+
+/* Panel border: right on desktop, bottom on mobile */
+.panel-border-r { border-right: 1px solid var(--border); }
+
+/* ── Mobile breakpoint ── */
+@media (max-width: 767px) {
+  .px-section { padding-left: 20px; padding-right: 20px; }
+
+  /* Featured grid: 2-col, first item spans both columns */
+  .grid-featured {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 140px 130px 130px;
+  }
+  .grid-featured > .featured-main { grid-column: span 2; grid-row: auto; }
+
+  /* Stats: 2×2 */
+  .grid-stats { grid-template-columns: repeat(2, 1fr); }
+  .stat-item  { padding: 16px 0; }
+  .stat-item + .stat-item           { border-left: none; border-top: 1px solid var(--border); }
+  .stat-item:nth-child(2)           { border-top: none; border-left: 1px solid var(--border); }
+
+  /* Team: single column */
+  .grid-team { grid-template-columns: 1fr; }
+
+  /* Generic 2-col */
+  .grid-2col { grid-template-columns: 1fr; }
+
+  /* Values: single column */
+  .grid-values { grid-template-columns: 1fr; }
+  .values-item:nth-child(odd)  { padding-right: 28px; border-right: none; }
+  .values-item:nth-child(even) { padding-left: 28px; }
+
+  /* Footer: stacked */
+  .grid-footer { grid-template-columns: 1fr; gap: 32px; }
+
+  /* Sidebars: stacked */
+  .grid-sidebar,
+  .grid-sidebar-wide { grid-template-columns: 1fr; }
+
+  /* Image editor: show canvas first, tools below */
+  .grid-sidebar-wide > *:nth-child(1) { order: 2; }
+  .grid-sidebar-wide > *:nth-child(2) { order: 1; }
+
+  /* Panel border: swap right → bottom */
+  .panel-border-r { border-right: none; border-bottom: 1px solid var(--border); }
+}

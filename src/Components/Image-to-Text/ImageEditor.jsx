@@ -789,10 +789,10 @@ function ImageEditor() {
         </div>
       ) : (
         /* ── Editing interface ── */
-        <div style={{ display: "grid", gridTemplateColumns: "320px 1fr", minHeight: "calc(100vh - 65px)" }}>
+        <div className="grid-sidebar-wide">
 
           {/* ── Left panel — tools ── */}
-          <div style={{ borderRight: "1px solid var(--border)", overflowY: "auto", display: "flex", flexDirection: "column" }}>
+          <div className="panel-border-r" style={{ overflowY: "auto", display: "flex", flexDirection: "column" }}>
 
             {/* Controls: undo/redo + model + custom prompt */}
             <div style={{ padding: "20px", borderBottom: "1px solid var(--border)" }}>
@@ -877,7 +877,7 @@ function ImageEditor() {
 
           {/* ── Right panel — image display ── */}
           <div style={{ padding: "24px", display: "flex", flexDirection: "column", gap: "16px" }}>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
+            <div className="grid-2col" style={{ gap: "16px" }}>
 
               {/* Original */}
               <div>
@@ -912,7 +912,7 @@ function ImageEditor() {
 
             {/* Stats row */}
             {editedImage && (
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "8px" }}>
+              <div className="grid-stats" style={{ gap: "8px" }}>
                 {[
                   ["1024×1024", "Resolution"],
                   [editHistory[currentEditIndex]?.method || "AI", "Method"],

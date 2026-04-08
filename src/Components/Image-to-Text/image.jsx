@@ -80,10 +80,10 @@ function ImageGenerator() {
       </div>
 
       {/* 2-column layout */}
-      <div style={{ display: "grid", gridTemplateColumns: "300px 1fr", minHeight: "calc(100vh - 65px)" }}>
+      <div className="grid-sidebar">
 
         {/* Sidebar */}
-        <div style={{ borderRight: "1px solid var(--border)", padding: "24px", display: "flex", flexDirection: "column", gap: "24px" }}>
+        <div className="panel-border-r" style={{ padding: "24px", display: "flex", flexDirection: "column", gap: "24px" }}>
           <form onSubmit={handleSubmit}>
             <label style={lbl}>Prompt</label>
             <textarea
